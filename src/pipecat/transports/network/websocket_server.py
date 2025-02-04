@@ -218,9 +218,8 @@ class WebsocketServerTransport(BaseTransport):
         params: WebsocketServerParams = WebsocketServerParams(),
         input_name: str | None = None,
         output_name: str | None = None,
-        loop: asyncio.AbstractEventLoop | None = None,
     ):
-        super().__init__(input_name=input_name, output_name=output_name, loop=loop)
+        super().__init__(input_name=input_name, output_name=output_name)
         self._host = host
         self._port = port
         self._params = params
