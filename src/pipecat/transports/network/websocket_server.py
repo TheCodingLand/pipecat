@@ -47,6 +47,7 @@ class WebsocketServerCallbacks(BaseModel):
     on_client_connected: Callable[[websockets.WebSocketServerProtocol], Awaitable[None]]
     on_client_disconnected: Callable[[websockets.WebSocketServerProtocol], Awaitable[None]]
     on_session_timeout: Callable[[websockets.WebSocketServerProtocol], Awaitable[None]]
+    on_websocket_ready: Callable[[], Awaitable[None]]
 
 
 class WebsocketServerInputTransport(BaseInputTransport):
@@ -85,6 +86,7 @@ class WebsocketServerInputTransport(BaseInputTransport):
     async def _server_task_handler(self):
         logger.info(f"Starting websocket server on {self._host}:{self._port}")
         async with websockets.serve(self._client_handler, self._host, self._port) as server:
+            await self._callbacks.on_websocket_ready()
             await self._stop_server_event.wait()
 
     async def _client_handler(self, websocket: websockets.WebSocketServerProtocol, path):
@@ -228,6 +230,7 @@ class WebsocketServerTransport(BaseTransport):
             on_client_connected=self._on_client_connected,
             on_client_disconnected=self._on_client_disconnected,
             on_session_timeout=self._on_session_timeout,
+            on_websocket_ready=self._on_websocket_ready,
         )
         self._input: WebsocketServerInputTransport | None = None
         self._output: WebsocketServerOutputTransport | None = None
@@ -238,6 +241,7 @@ class WebsocketServerTransport(BaseTransport):
         self._register_event_handler("on_client_connected")
         self._register_event_handler("on_client_disconnected")
         self._register_event_handler("on_session_timeout")
+        self._register_event_handler("on_websocket_ready")
 
     def input(self) -> WebsocketServerInputTransport:
         if not self._input:
@@ -267,3 +271,6 @@ class WebsocketServerTransport(BaseTransport):
 
     async def _on_session_timeout(self, websocket):
         await self._call_event_handler("on_session_timeout", websocket)
+
+    async def _on_websocket_ready(self):
+        await self._call_event_handler("on_websocket_ready")
