@@ -12,6 +12,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added `RimeTTSService`, a new `WordTTSService`. Updated the foundational
   example `07q-interruptible-rime.py` to use `RimeTTSService`.
 
+### Changed
+
+- `RimeHttpTTSService` now uses the `mistv2` model by default.
+
 ## [0.0.56] - 2025-02-06
 
 ### Changed
